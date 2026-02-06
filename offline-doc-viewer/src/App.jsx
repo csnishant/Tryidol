@@ -14,6 +14,7 @@ function App() {
       <h1 className="text-red-600">Offline Document Viewer</h1>
       <input type="file" onChange={handleFile} />
       {file && <p>Selected File: {file.name}</p>}
+   
     </div>
   );
 }
