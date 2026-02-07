@@ -1,15 +1,30 @@
+import { useEffect, useRef } from "react";
+import * as pdfjsLib from "pdfjs-dist";
+import pdfWorker from "pdfjs-dist/build/pdf.worker?url";
 
-import { Document, Page } from "react-pdf/dist/esm/entry.webpack";
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
-const PdfViewer = ({ file }) => {
-  return (
-    <div>
-      <h2>PDF Viewer</h2>
-      <Document file={file}>
-        <Page pageNumber={1} />
-      </Document>
-    </div>
-  );
-};
+export default function PdfViewer({ file }) {
+  const canvasRef = useRef(null);
 
-export default PdfViewer;
+  useEffect(() => {
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const pdf = await pdfjsLib.getDocument(reader.result).promise;
+      const page = await pdf.getPage(1);
+      const viewport = page.getViewport({ scale: 1.5 });
+
+      const canvas = canvasRef.current;
+      const context = canvas.getContext("2d");
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+
+      await page.render({ canvasContext: context, viewport }).promise;
+    };
+    reader.readAsArrayBuffer(file);
+  }, [file]);
+
+  return <canvas ref={canvasRef} />;
+}

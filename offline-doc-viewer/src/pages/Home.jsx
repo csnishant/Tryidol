@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import FileUploader from "../components/FileUploader";
 import { detectFileType } from "../utils/fileTypeDetector";
 import PdfViewer from "../components/PdfViewer";
+import ImageViewer from "../components/ImageViewer";
+import DocxViewer from "../components/DocxViewer";
 
 function Home() {
   const [file, setFile] = useState(null);
@@ -20,6 +22,10 @@ function Home() {
     if (fileType === "pdf") {
       return <PdfViewer file={file} />;
     }
+    if (fileType === "image") {
+      return <ImageViewer file={file} />;
+    }
+    
   };
 
   return (
