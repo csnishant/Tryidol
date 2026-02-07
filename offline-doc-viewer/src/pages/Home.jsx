@@ -4,6 +4,9 @@ import { detectFileType } from "../utils/fileTypeDetector";
 import PdfViewer from "../components/PdfViewer";
 import ImageViewer from "../components/ImageViewer";
 import DocxViewer from "../components/DocxViewer";
+import RtfViewer from "../components/RtfViewer";
+import MarkdownViewer from "../components/MarkdownViewer";
+import ExcelViewer from "../components/ExcelViewer";
 
 function Home() {
   const [file, setFile] = useState(null);
@@ -25,7 +28,12 @@ function Home() {
     if (fileType === "image") {
       return <ImageViewer file={file} />;
     }
-    
+    if (fileType === "rtf") {
+      return <RtfViewer file={file} />;
+    }
+    if (fileType === "excel") {
+      return <ExcelViewer file={file} />;
+    }
   };
 
   return (
