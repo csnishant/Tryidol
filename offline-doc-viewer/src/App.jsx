@@ -11,7 +11,7 @@ function App() {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h1 className="text-red-600">Offline Document Viewer</h1>
+      <h1 className="text-red-100">Offline Document Viewer</h1>
       <input type="file" onChange={handleFile} />
       {file && <p>Selected File: {file.name}</p>}
    
