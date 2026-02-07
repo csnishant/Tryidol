@@ -1,22 +1,7 @@
-import React, { useState } from "react";
+import Home from "./pages/Home";
 
 function App() {
-  const [file, setFile] = useState(null);
-
-  const handleFile = (e) => {
-    const selectedFile = e.target.files[0];
-    setFile(selectedFile);
-    console.log("Selected File:", selectedFile);
-  };
-
-  return (
-    <div style={{ padding: "20px" }}>
-      <h1 className="text-red-100">Offline Document Viewer</h1>
-      <input type="file" onChange={handleFile} />
-      {file && <p>Selected File: {file.name}</p>}
-   
-    </div>
-  );
+  return <Home />;
 }
 
 export default App;
