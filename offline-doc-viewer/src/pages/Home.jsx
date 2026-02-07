@@ -1,10 +1,26 @@
 import React, { useState } from "react";
 import FileUploader from "../components/FileUploader";
 import { detectFileType } from "../utils/fileTypeDetector";
+import PdfViewer from "../components/PdfViewer";
 
 function Home() {
   const [file, setFile] = useState(null);
   const fileType = file ? detectFileType(file) : null;
+
+  const renderViewer = () => {
+    if (!file) return null;
+
+    if (fileType === "docx") {
+      return <DocxViewer file={file} />;
+    }
+
+    if (fileType === "markdown") {
+      return <MarkdownViewer file={file} />;
+    }
+    if (fileType === "pdf") {
+      return <PdfViewer file={file} />;
+    }
+  };
 
   return (
     <div className="min-h-screen p-6 bg-gray-100">
@@ -17,6 +33,9 @@ function Home() {
             Detected file type: <b>{fileType}</b>
           </p>
         )}
+        <div className="mt-6 border rounded min-h-[400px] p-4 overflow-auto">
+          {renderViewer()}
+        </div>
       </div>
     </div>
   );
