@@ -1,15 +1,15 @@
 import { useEffect, useRef } from "react";
-import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf"; // legacy build works well with Vite
+import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf"; // legacy build works better with Vite
 import pdfjsWorker from "pdfjs-dist/legacy/build/pdf.worker.entry"; // worker entry
 
-// Use a blob for offline-safe worker
+// Offline-safe worker using a blob
 pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(
   new Blob([pdfjsWorker], { type: "application/javascript" }),
 );
 
 export default function PdfViewer({ file }) {
   const canvasRef = useRef(null);
-  const renderTaskRef = useRef(null); // track current render
+  const renderTaskRef = useRef(null);
 
   useEffect(() => {
     if (!file) return;
@@ -27,23 +27,18 @@ export default function PdfViewer({ file }) {
         canvas.height = viewport.height;
         canvas.width = viewport.width;
 
-        // Cancel previous render if any
         if (renderTaskRef.current) {
           renderTaskRef.current.cancel();
         }
 
-        // Start new render
         renderTaskRef.current = page.render({
           canvasContext: context,
           viewport,
         });
-
         await renderTaskRef.current.promise;
-        renderTaskRef.current = null; // clear after done
+        renderTaskRef.current = null;
       } catch (err) {
-        if (err?.name === "RenderingCancelledException") {
-          // ignore canceled renders
-        } else {
+        if (err?.name !== "RenderingCancelledException") {
           console.error(err);
         }
       }
@@ -51,11 +46,8 @@ export default function PdfViewer({ file }) {
 
     reader.readAsArrayBuffer(file);
 
-    // Cleanup on unmount
     return () => {
-      if (renderTaskRef.current) {
-        renderTaskRef.current.cancel();
-      }
+      if (renderTaskRef.current) renderTaskRef.current.cancel();
     };
   }, [file]);
 
