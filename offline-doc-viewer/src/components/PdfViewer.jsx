@@ -1,8 +1,11 @@
 import { useEffect, useRef } from "react";
-import * as pdfjsLib from "pdfjs-dist";
-import pdfWorker from "pdfjs-dist/build/pdf.worker?url";
+import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf"; // legacy build works well with Vite
+import pdfjsWorker from "pdfjs-dist/legacy/build/pdf.worker.entry"; // worker entry
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
+// Use a blob for offline-safe worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(
+  new Blob([pdfjsWorker], { type: "application/javascript" }),
+);
 
 export default function PdfViewer({ file }) {
   const canvasRef = useRef(null);
@@ -39,7 +42,7 @@ export default function PdfViewer({ file }) {
         renderTaskRef.current = null; // clear after done
       } catch (err) {
         if (err?.name === "RenderingCancelledException") {
-          // expected if we cancel previous render, ignore
+          // ignore canceled renders
         } else {
           console.error(err);
         }
