@@ -6,24 +6,54 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
 export default function PdfViewer({ file }) {
   const canvasRef = useRef(null);
+  const renderTaskRef = useRef(null); // track current render
 
   useEffect(() => {
     if (!file) return;
 
     const reader = new FileReader();
+
     reader.onload = async () => {
-      const pdf = await pdfjsLib.getDocument(reader.result).promise;
-      const page = await pdf.getPage(1);
-      const viewport = page.getViewport({ scale: 1.5 });
+      try {
+        const pdf = await pdfjsLib.getDocument(reader.result).promise;
+        const page = await pdf.getPage(1);
+        const viewport = page.getViewport({ scale: 1.5 });
 
-      const canvas = canvasRef.current;
-      const context = canvas.getContext("2d");
-      canvas.height = viewport.height;
-      canvas.width = viewport.width;
+        const canvas = canvasRef.current;
+        const context = canvas.getContext("2d");
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
 
-      await page.render({ canvasContext: context, viewport }).promise;
+        // Cancel previous render if any
+        if (renderTaskRef.current) {
+          renderTaskRef.current.cancel();
+        }
+
+        // Start new render
+        renderTaskRef.current = page.render({
+          canvasContext: context,
+          viewport,
+        });
+
+        await renderTaskRef.current.promise;
+        renderTaskRef.current = null; // clear after done
+      } catch (err) {
+        if (err?.name === "RenderingCancelledException") {
+          // expected if we cancel previous render, ignore
+        } else {
+          console.error(err);
+        }
+      }
     };
+
     reader.readAsArrayBuffer(file);
+
+    // Cleanup on unmount
+    return () => {
+      if (renderTaskRef.current) {
+        renderTaskRef.current.cancel();
+      }
+    };
   }, [file]);
 
   return <canvas ref={canvasRef} />;
